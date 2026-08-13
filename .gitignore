@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.DS_Store
+*.local
+
+# Capacitor / Android — généré par cap add android, ne pas committer
+# le build brut (mais tu PEUX committer android/ si tu veux figer
+# les fichiers natifs modifiés à la main, comme les icônes)
+android/app/build
+android/.gradle
+android/local.properties

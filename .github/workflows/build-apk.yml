@@ -1,0 +1,50 @@
+name: Build APK
+
+# Compile l'APK Android à chaque push sur main, ou manuellement.
+# Utile depuis Termux : pas besoin du SDK Android en local, tout
+# se fait côté GitHub — tu récupères l'APK dans l'onglet Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Build web (Vite)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Ajouter la plateforme Android (si absente)
+        run: npx cap add android || true
+
+      - name: Synchroniser Capacitor
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Compiler l'APK debug
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Publier l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-workspace-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
