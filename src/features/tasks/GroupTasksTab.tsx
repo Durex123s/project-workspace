@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import { listTasksForGroup, updateTaskStatus, createTask } from './tasksService'
 import type { GroupTask, TaskStatus } from '@/types'
 import { useAuth } from '@/features/auth/AuthContext'
-import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
+import { LoadingState, ErrorState, extractErrorMessage } from '@/components/StateViews'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
   { status: 'TODO', label: 'À faire' },
