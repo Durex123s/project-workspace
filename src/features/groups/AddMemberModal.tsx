@@ -3,6 +3,7 @@ import { X, UserPlus, Loader2, Search } from 'lucide-react'
 import { listAllProfiles } from '@/features/profile/profilesService'
 import { addGroupMember } from './groupsService'
 import type { Profile, GroupMember } from '@/types'
+import { extractErrorMessage } from '@/components/StateViews'
 
 interface Props {
   groupId: string
@@ -19,7 +20,10 @@ export default function AddMemberModal({ groupId, existingMembers, onClose, onAd
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    listAllProfiles().then(setProfiles).finally(() => setLoading(false))
+    listAllProfiles()
+      .then(setProfiles)
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }, [])
 
   const existingIds = useMemo(() => new Set(existingMembers.map((m) => m.user_id)), [existingMembers])

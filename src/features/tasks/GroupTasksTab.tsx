@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { listTasksForGroup, updateTaskStatus, createTask } from './tasksService'
 import type { GroupTask, TaskStatus } from '@/types'
 import { useAuth } from '@/features/auth/AuthContext'
+import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
   { status: 'TODO', label: 'À faire' },
@@ -24,12 +25,17 @@ export default function GroupTasksTab({ groupId }: { groupId: string }) {
   const { user } = useAuth()
   const [tasks, setTasks] = useState<GroupTask[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [title, setTitle] = useState('')
 
   function load() {
     setLoading(true)
-    listTasksForGroup(groupId).then(setTasks).finally(() => setLoading(false))
+    setError(null)
+    listTasksForGroup(groupId)
+      .then(setTasks)
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [groupId])
@@ -47,9 +53,8 @@ export default function GroupTasksTab({ groupId }: { groupId: string }) {
     load()
   }
 
-  if (loading) {
-    return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
-  }
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState message={error} onRetry={load} />
 
   return (
     <div className="p-4">

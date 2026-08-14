@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Check, X, RotateCcw, Loader2, ClipboardCheck } from 'lucide-react'
+import { Check, X, RotateCcw, ClipboardCheck } from 'lucide-react'
 import { listPendingValidations, reviewValidation } from './validationsService'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { ValidationRow } from '@/types'
+import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 type PendingValidation = ValidationRow & { groups: { name: string; code: string | null } | null }
 
@@ -10,13 +11,18 @@ export default function AdminValidationsPage() {
   const { user } = useAuth()
   const [items, setItems] = useState<PendingValidation[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [commentFor, setCommentFor] = useState<string | null>(null)
   const [comment, setComment] = useState('')
   const [busyId, setBusyId] = useState<string | null>(null)
 
   function load() {
     setLoading(true)
-    listPendingValidations().then(setItems).finally(() => setLoading(false))
+    setError(null)
+    listPendingValidations()
+      .then(setItems)
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
@@ -43,10 +49,10 @@ export default function AdminValidationsPage() {
       <h1 className="text-xl font-bold">Validations en attente</h1>
       <p className="text-sm text-slate-400 -mt-2">{items.length} demande{items.length > 1 ? 's' : ''}</p>
 
-      {loading && <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-500" /></div>}
-
-      {!loading && items.length === 0 && (
-        <div className="card text-center py-10 text-slate-500 text-sm">Aucune validation en attente. 🎉</div>
+      {loading && <LoadingState />}
+      {error && <ErrorState message={error} onRetry={load} />}
+      {!loading && !error && items.length === 0 && (
+        <EmptyState message="Aucune validation en attente. 🎉" icon={ClipboardCheck} />
       )}
 
       <div className="space-y-2">

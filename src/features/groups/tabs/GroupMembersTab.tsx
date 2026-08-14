@@ -1,30 +1,39 @@
 import { useEffect, useState } from 'react'
-import { UserMinus, UserPlus, Loader2 } from 'lucide-react'
+import { UserMinus, UserPlus, Users } from 'lucide-react'
 import { listGroupMembers, removeGroupMember } from '../groupsService'
 import AddMemberModal from '../AddMemberModal'
 import type { GroupMember } from '@/types'
+import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 export default function GroupMembersTab({ groupId }: { groupId: string }) {
   const [members, setMembers] = useState<GroupMember[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
 
   function load() {
     setLoading(true)
-    listGroupMembers(groupId).then(setMembers).finally(() => setLoading(false))
+    setError(null)
+    listGroupMembers(groupId)
+      .then(setMembers)
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [groupId])
 
   async function handleRemove(memberId: string) {
     if (!confirm('Retirer ce membre du groupe ?')) return
-    await removeGroupMember(memberId, groupId)
-    load()
+    try {
+      await removeGroupMember(memberId, groupId)
+      load()
+    } catch (e) {
+      setError(extractErrorMessage(e))
+    }
   }
 
-  if (loading) {
-    return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
-  }
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState message={error} onRetry={load} />
 
   return (
     <div className="p-4 space-y-2">
@@ -35,9 +44,7 @@ export default function GroupMembersTab({ groupId }: { groupId: string }) {
         </button>
       </div>
 
-      {members.length === 0 && (
-        <div className="card text-center py-8 text-slate-500">Aucun membre pour l'instant.</div>
-      )}
+      {members.length === 0 && <EmptyState message="Aucun membre pour l'instant." icon={Users} />}
       {members.map((m) => (
         <div key={m.id} className="card flex items-center justify-between">
           <div>

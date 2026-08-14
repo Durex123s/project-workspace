@@ -3,6 +3,7 @@ import { Plus, Trash2, Loader2, FlaskConical } from 'lucide-react'
 import { listTestsForGroup, createTest, deleteTest } from '@/features/tests/testsService'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { TestRow } from '@/types'
+import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 const EMPTY_FORM = { name: '', objective: '', theoretical_value: '', measured_value: '', unit: '', comment: '' }
 
@@ -10,6 +11,7 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
   const { user } = useAuth()
   const [tests, setTests] = useState<TestRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
@@ -17,7 +19,11 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
 
   function load() {
     setLoading(true)
-    listTestsForGroup(groupId).then(setTests).finally(() => setLoading(false))
+    setLoadError(null)
+    listTestsForGroup(groupId)
+      .then(setTests)
+      .catch((e) => setLoadError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [groupId])
@@ -51,8 +57,12 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
 
   async function handleDelete(id: string) {
     if (!confirm('Supprimer ce test ?')) return
-    await deleteTest(id, groupId)
-    load()
+    try {
+      await deleteTest(id, groupId)
+      load()
+    } catch (e) {
+      setLoadError(extractErrorMessage(e))
+    }
   }
 
   return (
@@ -86,9 +96,10 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
         </div>
       )}
 
-      {loading && <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>}
-      {!loading && tests.length === 0 && (
-        <div className="card text-center py-8 text-slate-500 text-sm">Aucun test enregistré pour ce groupe.</div>
+      {loading && <LoadingState />}
+      {loadError && <ErrorState message={loadError} onRetry={load} />}
+      {!loading && !loadError && tests.length === 0 && (
+        <EmptyState message="Aucun test enregistré pour ce groupe." icon={FlaskConical} />
       )}
 
       <div className="space-y-2">

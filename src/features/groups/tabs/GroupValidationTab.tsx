@@ -3,6 +3,7 @@ import { Send, Loader2, ClipboardCheck } from 'lucide-react'
 import { listValidationsForGroup, submitForValidation } from '@/features/validations/validationsService'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { ValidationRow, ValidationStatus } from '@/types'
+import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 const STATUS_STYLES: Record<ValidationStatus, string> = {
   DRAFT: 'bg-slate-600/30 text-slate-300',
@@ -26,11 +27,16 @@ export default function GroupValidationTab({ groupId }: { groupId: string }) {
   const { user } = useAuth()
   const [items, setItems] = useState<ValidationRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   function load() {
     setLoading(true)
-    listValidationsForGroup(groupId).then(setItems).finally(() => setLoading(false))
+    setError(null)
+    listValidationsForGroup(groupId)
+      .then(setItems)
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [groupId])
@@ -41,6 +47,8 @@ export default function GroupValidationTab({ groupId }: { groupId: string }) {
     try {
       await submitForValidation(groupId, user.id)
       load()
+    } catch (e) {
+      setError(extractErrorMessage(e))
     } finally {
       setSubmitting(false)
     }
@@ -66,9 +74,10 @@ export default function GroupValidationTab({ groupId }: { groupId: string }) {
       </div>
 
       <h3 className="font-medium text-sm text-slate-300">Historique</h3>
-      {loading && <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>}
-      {!loading && items.length === 0 && (
-        <div className="card text-center py-8 text-slate-500 text-sm">Aucune demande de validation pour l'instant.</div>
+      {loading && <LoadingState />}
+      {error && <ErrorState message={error} onRetry={load} />}
+      {!loading && !error && items.length === 0 && (
+        <EmptyState message="Aucune demande de validation pour l'instant." icon={ClipboardCheck} />
       )}
       <div className="space-y-2">
         {items.map((v) => (

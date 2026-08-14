@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Navigate, NavLink, Routes, Route } from 'react-router-dom'
-import { Loader2 } from 'lucide-react'
 import { getGroup } from './groupsService'
+import { LoadingState, ErrorState, extractErrorMessage } from '@/components/StateViews'
 import type { Group } from '@/types'
 import GroupOverviewTab from './tabs/GroupOverviewTab'
 import GroupMembersTab from './tabs/GroupMembersTab'
@@ -19,24 +19,29 @@ export default function GroupWorkspacePage() {
   const [group, setGroup] = useState<Group | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!groupId) return
     setLoading(true)
+    setNotFound(false)
+    setError(null)
     getGroup(groupId)
       .then(setGroup)
-      .catch(() => setNotFound(true))
+      .catch((e) => {
+        // PGRST116 = aucune ligne (groupe inexistant ou RLS le masque) — distinct d'une vraie panne réseau.
+        const msg = extractErrorMessage(e)
+        if (msg.includes('PGRST116') || msg.toLowerCase().includes('no rows')) setNotFound(true)
+        else setError(msg)
+      })
       .finally(() => setLoading(false))
   }, [groupId])
 
+  useEffect(() => { load() }, [load])
+
   if (!groupId) return <Navigate to="/groups" replace />
-  if (loading) {
-    return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
-      </div>
-    )
-  }
+  if (loading) return <LoadingState label="Chargement du groupe..." />
+  if (error) return <ErrorState message={error} onRetry={load} />
   if (notFound || !group) {
     return <div className="p-6 text-center text-slate-400">Groupe introuvable ou accès refusé.</div>
   }
