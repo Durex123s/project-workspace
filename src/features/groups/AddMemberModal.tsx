@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X, UserPlus, Loader2, Search } from 'lucide-react'
 import { listAllProfiles } from '@/features/profile/profilesService'
-import { addGroupMember } from '../groupsService'
+import { addGroupMember } from './groupsService'
 import type { Profile, GroupMember } from '@/types'
 
 interface Props {
