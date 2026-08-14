@@ -5,8 +5,6 @@ import { getGroup } from './groupsService'
 import type { Group } from '@/types'
 import GroupOverviewTab from './tabs/GroupOverviewTab'
 import GroupMembersTab from './tabs/GroupMembersTab'
-import GroupDocumentsTab from './tabs/GroupDocumentsTab'
-import GroupDiscussionTab from './tabs/GroupDiscussionTab'
 import GroupTasksTab from '@/features/tasks/GroupTasksTab'
 
 // Espace de travail générique : fonctionne pour N'IMPORTE QUEL
@@ -42,9 +40,7 @@ export default function GroupWorkspacePage() {
   const tabs = [
     { to: '', label: 'Aperçu', end: true },
     { to: 'tasks', label: 'Tâches' },
-    { to: 'members', label: 'Membres' },
-    { to: 'documents', label: 'Documents' },
-    { to: 'discussion', label: 'Discussion' }
+    { to: 'members', label: 'Membres' }
   ]
 
   return (
@@ -77,8 +73,6 @@ export default function GroupWorkspacePage() {
         <Route index element={<GroupOverviewTab group={group} />} />
         <Route path="tasks" element={<GroupTasksTab groupId={group.id} />} />
         <Route path="members" element={<GroupMembersTab groupId={group.id} />} />
-        <Route path="documents" element={<GroupDocumentsTab groupId={group.id} />} />
-        <Route path="discussion" element={<GroupDiscussionTab groupId={group.id} />} />
       </Routes>
     </div>
   )

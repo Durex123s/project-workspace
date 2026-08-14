@@ -106,4 +106,4 @@ cd android
 L'APK sort dans `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ### Icônes de l'app
-Icônes générées et déjà présentes dans `public/` : `icon-192.png`, `icon-512.png`, `maskable-icon-512.png`, `favicon.png` (monogramme "PW" sur fond bleu nuit, dans le style industriel du reste de l'app). Référencées automatiquement par le manifest PWA — rien à faire.
+`vite-plugin-pwa` référence `icon-192.png` et `icon-512.png` dans `public/` (à ajouter — pas encore présents dans ce scaffold). Sans eux, le build passe quand même mais l'icône de l'app sera celle par défaut de Capacitor.

@@ -51,13 +51,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string, fullName: string) {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } }
-    })
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) return { error: error.message }
-    // Le profil est créé automatiquement côté base (trigger on_auth_user_created).
+    if (data.user) {
+      await supabase.from('profiles').insert({
+        id: data.user.id,
+        full_name: fullName,
+        email
+      })
+    }
     return { error: null }
   }
 

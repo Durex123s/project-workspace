@@ -13,7 +13,7 @@ export default function DashboardPage() {
   const { groups, loading: groupsLoading } = useGroups('ACTIVE')
 
   useEffect(() => {
-    Promise.resolve(supabase.from('project_dashboard_stats').select('*').single())
+    supabase.from('project_dashboard_stats').select('*').single()
       .then(({ data }) => setStats(data as ProjectDashboardStats))
       .finally(() => setLoading(false))
   }, [])
