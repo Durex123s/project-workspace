@@ -13,11 +13,10 @@ export default function DashboardPage() {
   const { groups, loading: groupsLoading } = useGroups('ACTIVE')
 
   useEffect(() => {
-    supabase.from('project_dashboard_stats').select('*').single()
+    Promise.resolve(supabase.from('project_dashboard_stats').select('*').single())
       .then(({ data }) => setStats(data as ProjectDashboardStats))
       .finally(() => setLoading(false))
   }, [])
-
   const cards = stats ? [
     { icon: LayoutGrid, label: 'Groupes actifs', value: stats.active_groups, sub: `${stats.archived_groups} archivé(s)` },
     { icon: Users, label: 'Participants', value: stats.total_participants },
