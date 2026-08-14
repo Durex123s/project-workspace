@@ -51,15 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string, fullName: string) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } }
+    })
     if (error) return { error: error.message }
-    if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        full_name: fullName,
-        email
-      })
-    }
+    // Le profil est créé automatiquement côté base (trigger on_auth_user_created).
     return { error: null }
   }
 
@@ -85,3 +83,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth doit être utilisé dans <AuthProvider>')
   return ctx
 }
+
