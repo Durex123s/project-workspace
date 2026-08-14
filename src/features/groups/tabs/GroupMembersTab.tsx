@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { UserMinus, Loader2 } from 'lucide-react'
+import { UserMinus, UserPlus, Loader2 } from 'lucide-react'
 import { listGroupMembers, removeGroupMember } from '../groupsService'
+import AddMemberModal from '../AddMemberModal'
 import type { GroupMember } from '@/types'
 
 export default function GroupMembersTab({ groupId }: { groupId: string }) {
   const [members, setMembers] = useState<GroupMember[]>([])
   const [loading, setLoading] = useState(true)
+  const [showAdd, setShowAdd] = useState(false)
 
   function load() {
     setLoading(true)
@@ -26,6 +28,13 @@ export default function GroupMembersTab({ groupId }: { groupId: string }) {
 
   return (
     <div className="p-4 space-y-2">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="font-medium text-sm text-slate-300">Membres ({members.length})</h3>
+        <button onClick={() => setShowAdd(true)} className="btn-secondary text-sm flex items-center gap-1.5">
+          <UserPlus className="w-4 h-4" /> Ajouter
+        </button>
+      </div>
+
       {members.length === 0 && (
         <div className="card text-center py-8 text-slate-500">Aucun membre pour l'instant.</div>
       )}
@@ -40,9 +49,15 @@ export default function GroupMembersTab({ groupId }: { groupId: string }) {
           </button>
         </div>
       ))}
-      <p className="text-xs text-slate-600 pt-2">
-        L'ajout de membres se fait depuis Administration → Utilisateurs, ou par le responsable du groupe.
-      </p>
+
+      {showAdd && (
+        <AddMemberModal
+          groupId={groupId}
+          existingMembers={members}
+          onClose={() => setShowAdd(false)}
+          onAdded={load}
+        />
+      )}
     </div>
   )
 }

@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User } from 'lucide-react'
+import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
   { to: '/groups', icon: LayoutGrid, label: 'Groupes' },
   { to: '/tests', icon: FlaskConical, label: 'Tests & mesures' },
+  { to: '/calculators', icon: Calculator, label: 'Calculateurs' },
   { to: '/documents', icon: FileText, label: 'Documents' },
   { to: '/profile', icon: User, label: 'Profil' }
 ]
@@ -42,15 +43,26 @@ export default function AppLayout() {
             </NavLink>
           ))}
           {isStaff && (
-            <NavLink
-              to="/admin/groups"
-              className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${isActive ? 'bg-accent/20 text-accent-soft' : 'text-slate-400 hover:bg-base-800'}`
-              }
-            >
-              <Settings className="w-4 h-4" />
-              Administration
-            </NavLink>
+            <>
+              <NavLink
+                to="/admin/groups"
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${isActive ? 'bg-accent/20 text-accent-soft' : 'text-slate-400 hover:bg-base-800'}`
+                }
+              >
+                <Settings className="w-4 h-4" />
+                Administration
+              </NavLink>
+              <NavLink
+                to="/admin/validations"
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${isActive ? 'bg-accent/20 text-accent-soft' : 'text-slate-400 hover:bg-base-800'}`
+                }
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Validations
+              </NavLink>
+            </>
           )}
         </nav>
         {profile && (

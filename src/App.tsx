@@ -10,6 +10,8 @@ import TestsPage from '@/features/tests/TestsPage'
 import DocumentsPage from '@/features/documents/DocumentsPage'
 import ProfilePage from '@/features/profile/ProfilePage'
 import AdminGroupsPage from '@/features/admin/AdminGroupsPage'
+import TransmissionCalculatorPage from '@/features/calculators/TransmissionCalculatorPage'
+import AdminValidationsPage from '@/features/validations/AdminValidationsPage'
 
 // Remarque architecture : aucune route n'est dupliquée par groupe.
 // /groups/:groupId dessert dynamiquement tous les groupes existants.
@@ -30,6 +32,8 @@ export default function App() {
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin/groups" element={<AdminGroupsPage />} />
+              <Route path="/admin/validations" element={<AdminValidationsPage />} />
+              <Route path="/calculators" element={<TransmissionCalculatorPage />} />
             </Route>
           </Route>
 

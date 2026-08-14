@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Plus, Pencil, Archive, ArchiveRestore, Trash2, Users, Loader2 } from 'lucide-react'
 import { useGroups } from '@/features/groups/useGroups'
 import GroupFormModal from '@/features/groups/GroupFormModal'
-import { archiveGroup, restoreGroup, deleteGroup } from '@/features/groups/groupsService'
+import { archiveGroup, restoreGroup, deleteGroup, getGroup } from '@/features/groups/groupsService'
 import type { Group, GroupStatus } from '@/types'
 
 // ADMIN → GROUPES → GÉRER LES GROUPES
@@ -14,6 +14,18 @@ export default function AdminGroupsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Group | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [loadingEdit, setLoadingEdit] = useState(false)
+
+  async function handleEdit(groupId: string) {
+    setLoadingEdit(true)
+    try {
+      const full = await getGroup(groupId)
+      setEditing(full)
+      setModalOpen(true)
+    } finally {
+      setLoadingEdit(false)
+    }
+  }
 
   async function handleArchive(id: string) {
     setBusyId(id)
@@ -103,8 +115,9 @@ export default function AdminGroupsPage() {
                 <Users className="w-4 h-4" />
               </Link>
               <button
-                onClick={() => { /* edit needs full group row */ setEditing({ id: g.group_id, name: g.name, code: g.code, status: g.status } as Group); setModalOpen(true) }}
-                className="p-2 text-slate-400 hover:text-white"
+                onClick={() => handleEdit(g.group_id)}
+                disabled={loadingEdit}
+                className="p-2 text-slate-400 hover:text-white disabled:opacity-50"
                 title="Modifier"
               >
                 <Pencil className="w-4 h-4" />

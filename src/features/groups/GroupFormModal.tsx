@@ -4,6 +4,14 @@ import type { Group } from '@/types'
 import { createGroup, updateGroup, type CreateGroupInput } from './groupsService'
 import { useAuth } from '@/features/auth/AuthContext'
 
+// Extrait un message lisible d'une erreur Supabase (PostgrestError,
+// qui n'est pas une instance d'Error native) ou d'une Error classique.
+function extractErrorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message
+  if (e && typeof e === 'object' && 'message' in e) return String((e as { message: unknown }).message)
+  return 'Erreur lors de l\'enregistrement'
+}
+
 interface Props {
   group?: Group | null
   onClose: () => void
@@ -41,7 +49,7 @@ export default function GroupFormModal({ group, onClose, onSaved }: Props) {
       onSaved()
       onClose()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur lors de l\'enregistrement')
+      setError(extractErrorMessage(e))
     } finally {
       setSaving(false)
     }
