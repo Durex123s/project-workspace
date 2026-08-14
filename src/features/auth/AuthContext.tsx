@@ -83,4 +83,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth doit être utilisé dans <AuthProvider>')
   return ctx
 }
-

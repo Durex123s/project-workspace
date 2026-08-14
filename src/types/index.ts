@@ -138,6 +138,15 @@ export interface ValidationRow {
   created_at: string
 }
 
+export interface GroupMessage {
+  id: string
+  group_id: string
+  author_id: string | null
+  content: string
+  client_id: string | null
+  created_at: string
+}
+
 export interface ProjectDashboardStats {
   active_groups: number
   archived_groups: number

@@ -17,6 +17,7 @@ export default function DashboardPage() {
       .then(({ data }) => setStats(data as ProjectDashboardStats))
       .finally(() => setLoading(false))
   }, [])
+
   const cards = stats ? [
     { icon: LayoutGrid, label: 'Groupes actifs', value: stats.active_groups, sub: `${stats.archived_groups} archivé(s)` },
     { icon: Users, label: 'Participants', value: stats.total_participants },
