@@ -12,6 +12,8 @@ interface AuthContextValue {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  requestPasswordReset: (email: string) => Promise<{ error: string | null }>
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -69,9 +71,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (session?.user) await loadProfile(session.user.id)
   }
 
+  // Envoie l'email de réinitialisation. redirectTo pointe vers /reset-password
+  // sur l'origine actuelle : fonctionne quand l'app tourne comme PWA web
+  // (ex. déployée sur Vercel). Dans l'APK Capacitor pur (sans hébergement web),
+  // le lien ouvrira un navigateur externe plutôt que l'app tant qu'un deep-link
+  // Android n'est pas configuré séparément.
+  async function requestPasswordReset(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+    return { error: error?.message ?? null }
+  }
+
+  async function updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    return { error: error?.message ?? null }
+  }
+
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, profile, loading, signIn, signUp, signOut, refreshProfile }}
+      value={{ session, user: session?.user ?? null, profile, loading, signIn, signUp, signOut, refreshProfile, requestPasswordReset, updatePassword }}
     >
       {children}
     </AuthContext.Provider>

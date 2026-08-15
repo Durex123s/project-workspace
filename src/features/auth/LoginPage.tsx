@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogIn, UserPlus, Loader2 } from 'lucide-react'
+import { LogIn, UserPlus, Loader2, KeyRound } from 'lucide-react'
 import { useAuth } from './AuthContext'
 
+type Mode = 'login' | 'signup' | 'forgot'
+
 export default function LoginPage() {
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, requestPasswordReset } = useAuth()
   const navigate = useNavigate()
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [mode, setMode] = useState<Mode>('login')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,6 +33,17 @@ export default function LoginPage() {
       return
     }
 
+    if (mode === 'forgot') {
+      const { error } = await requestPasswordReset(email)
+      setLoading(false)
+      if (error) {
+        setError(error)
+        return
+      }
+      setInfo('Si un compte existe avec cet email, un lien de réinitialisation vient de lui être envoyé.')
+      return
+    }
+
     const { error } = await signUp(email, password, fullName)
     setLoading(false)
     if (error) {
@@ -43,14 +56,18 @@ export default function LoginPage() {
     setMode('login')
   }
 
+  const titles: Record<Mode, string> = {
+    login: 'Connexion à votre espace de travail',
+    signup: 'Créer votre compte',
+    forgot: 'Réinitialiser votre mot de passe'
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Project Workspace</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {mode === 'login' ? 'Connexion à votre espace de travail' : 'Créer votre compte'}
-          </p>
+          <p className="text-slate-400 text-sm mt-1">{titles[mode]}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="card space-y-4">
@@ -90,36 +107,51 @@ export default function LoginPage() {
               placeholder="vous@exemple.com"
             />
           </div>
-          <div>
-            <label className="block text-sm text-slate-400 mb-1">Mot de passe</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              className="input-field"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
+
+          {mode !== 'forgot' && (
+            <div>
+              <label className="block text-sm text-slate-400 mb-1">Mot de passe</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                className="input-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+          )}
+
+          {mode === 'login' && (
+            <button
+              type="button"
+              onClick={() => { setMode('forgot'); setError(null); setInfo(null) }}
+              className="text-xs text-accent-soft -mt-2"
+            >
+              Mot de passe oublié ?
+            </button>
+          )}
 
           <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : mode === 'login' ? (
               <LogIn className="w-4 h-4" />
+            ) : mode === 'forgot' ? (
+              <KeyRound className="w-4 h-4" />
             ) : (
               <UserPlus className="w-4 h-4" />
             )}
-            {mode === 'login' ? 'Se connecter' : 'Créer le compte'}
+            {mode === 'login' ? 'Se connecter' : mode === 'forgot' ? 'Envoyer le lien' : 'Créer le compte'}
           </button>
 
           <button
             type="button"
-            onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setInfo(null) }}
+            onClick={() => { setMode(mode === 'signup' ? 'login' : mode === 'forgot' ? 'login' : 'signup'); setError(null); setInfo(null) }}
             className="w-full text-center text-sm text-slate-400 hover:text-slate-200"
           >
-            {mode === 'login' ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
+            {mode === 'signup' ? 'Déjà un compte ? Se connecter' : mode === 'forgot' ? 'Retour à la connexion' : "Pas encore de compte ? S'inscrire"}
           </button>
         </form>
       </div>
