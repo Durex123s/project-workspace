@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, Users, ListChecks, FlaskConical, FileText, ClipboardCheck, LayoutGrid } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import type { ProjectDashboardStats } from '@/types'
 import { useGroups } from '@/features/groups/useGroups'
+import { getDashboardStats } from './dashboardService'
+import { ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 // Dashboard 100% dynamique : chaque chiffre vient d'une requête
 // SQL (vue project_dashboard_stats). Aucun total n'est écrit en dur.
 export default function DashboardPage() {
   const [stats, setStats] = useState<ProjectDashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { groups, loading: groupsLoading } = useGroups('ACTIVE')
 
-  useEffect(() => {
-    Promise.resolve(supabase.from('project_dashboard_stats').select('*').single())
-      .then(({ data }) => setStats(data as ProjectDashboardStats))
+  function loadStats() {
+    setLoading(true)
+    setError(null)
+    getDashboardStats()
+      .then(setStats)
+      .catch((e) => setError(extractErrorMessage(e)))
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { loadStats() }, [])
 
   const cards = stats ? [
     { icon: LayoutGrid, label: 'Groupes actifs', value: stats.active_groups, sub: `${stats.archived_groups} archivé(s)` },
@@ -35,6 +42,7 @@ export default function DashboardPage() {
       </div>
 
       {loading && <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-500" /></div>}
+      {error && <ErrorState message={error} onRetry={loadStats} />}
 
       {stats && (
         <>
@@ -80,9 +88,7 @@ export default function DashboardPage() {
             </Link>
           ))}
           {!groupsLoading && groups.length === 0 && (
-            <div className="card text-center py-8 text-slate-500 text-sm">
-              Aucun groupe actif. <Link to="/admin/groups" className="text-accent-soft">Créer le premier groupe</Link>.
-            </div>
+            <EmptyState message="Aucun groupe actif. Crée le premier groupe depuis Administration." icon={LayoutGrid} />
           )}
         </div>
       </div>

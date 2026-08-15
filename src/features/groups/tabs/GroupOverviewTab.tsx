@@ -1,35 +1,33 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { FileText, FlaskConical, ClipboardCheck, MessageSquare, ChevronRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import type { Group, GroupProgress } from '@/types'
-import { LoadingState } from '@/components/StateViews'
+import { getGroupProgress, getGroupOverviewCounts, type GroupOverviewCounts } from '../groupsService'
+import { LoadingState, ErrorState, extractErrorMessage } from '@/components/StateViews'
 
 export default function GroupOverviewTab({ group }: { group: Group }) {
   const { groupId } = useParams<{ groupId: string }>()
   const [progress, setProgress] = useState<GroupProgress | null>(null)
-  const [counts, setCounts] = useState<{ documents: number; tests: number; pendingValidation: boolean } | null>(null)
+  const [counts, setCounts] = useState<GroupOverviewCounts | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    supabase.from('group_progress').select('*').eq('group_id', group.id).single()
-      .then(({ data }) => setProgress(data as GroupProgress))
-  }, [group.id])
-
-  useEffect(() => {
-    async function loadCounts() {
-      const [docs, tests, validations] = await Promise.all([
-        supabase.from('documents').select('id', { count: 'exact', head: true }).eq('group_id', group.id),
-        supabase.from('tests').select('id', { count: 'exact', head: true }).eq('group_id', group.id),
-        supabase.from('validations').select('status').eq('group_id', group.id).in('status', ['SUBMITTED', 'UNDER_REVIEW'])
-      ])
-      setCounts({
-        documents: docs.count ?? 0,
-        tests: tests.count ?? 0,
-        pendingValidation: (validations.data?.length ?? 0) > 0
+  function load() {
+    setLoading(true)
+    setError(null)
+    Promise.all([getGroupProgress(group.id), getGroupOverviewCounts(group.id)])
+      .then(([p, c]) => {
+        setProgress(p)
+        setCounts(c)
       })
-    }
-    loadCounts()
-  }, [group.id])
+      .catch((e) => setError(extractErrorMessage(e)))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [group.id])
+
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState message={error} onRetry={load} />
 
   const shortcuts = [
     { to: `/groups/${groupId}/documents`, icon: FileText, label: 'Documents', value: counts ? `${counts.documents}` : '' },
@@ -63,23 +61,20 @@ export default function GroupOverviewTab({ group }: { group: Group }) {
         </div>
       )}
 
-      {!counts && <LoadingState />}
-      {counts && (
-        <div className="grid grid-cols-2 gap-2">
-          {shortcuts.map((s) => (
-            <Link key={s.label} to={s.to} className="card flex items-center justify-between py-3.5">
-              <div className="flex items-center gap-2 min-w-0">
-                <s.icon className="w-4 h-4 text-accent-soft shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{s.label}</p>
-                  {s.value && <p className="text-xs text-slate-500">{s.value}</p>}
-                </div>
+      <div className="grid grid-cols-2 gap-2">
+        {shortcuts.map((s) => (
+          <Link key={s.label} to={s.to} className="card flex items-center justify-between py-3.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <s.icon className="w-4 h-4 text-accent-soft shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{s.label}</p>
+                {s.value && <p className="text-xs text-slate-500">{s.value}</p>}
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
-            </Link>
-          ))}
-        </div>
-      )}
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase'
 import type { Group, GroupProgress, GroupMember, GroupStatus } from '@/types'
-
 // ------------------------------------------------------------
 // Service groupes — 100% dynamique. Aucune fonction ici ne
 // suppose un nombre ou une liste fixe de groupes : tout passe
@@ -125,4 +124,37 @@ export async function removeGroupMember(memberRowId: string, groupId: string) {
     p_entity_id: memberRowId,
     p_metadata: {}
   })
+}
+
+// ------------------------------------------------------------
+// Aperçu (Overview) : progression + compteurs de raccourcis.
+// Extrait ici pour que GroupOverviewTab n'accède plus à Supabase
+// directement (cohérence avec le reste des features).
+// ------------------------------------------------------------
+export async function getGroupProgress(groupId: string) {
+  const { data, error } = await supabase.from('group_progress').select('*').eq('group_id', groupId).single()
+  if (error) throw error
+  return data as GroupProgress
+}
+
+export interface GroupOverviewCounts {
+  documents: number
+  tests: number
+  pendingValidation: boolean
+}
+
+export async function getGroupOverviewCounts(groupId: string): Promise<GroupOverviewCounts> {
+  const [docs, tests, validations] = await Promise.all([
+    supabase.from('documents').select('id', { count: 'exact', head: true }).eq('group_id', groupId),
+    supabase.from('tests').select('id', { count: 'exact', head: true }).eq('group_id', groupId),
+    supabase.from('validations').select('status').eq('group_id', groupId).in('status', ['SUBMITTED', 'UNDER_REVIEW'])
+  ])
+  if (docs.error) throw docs.error
+  if (tests.error) throw tests.error
+  if (validations.error) throw validations.error
+  return {
+    documents: docs.count ?? 0,
+    tests: tests.count ?? 0,
+    pendingValidation: (validations.data?.length ?? 0) > 0
+  }
 }
