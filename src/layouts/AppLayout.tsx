@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck } from 'lucide-react'
+import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck, GitBranch } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import NotificationBell from '@/features/notifications/NotificationBell'
 
@@ -63,6 +63,15 @@ export default function AppLayout() {
               >
                 <ClipboardCheck className="w-4 h-4" />
                 Validations
+              </NavLink>
+              <NavLink
+                to="/admin/dependencies"
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${isActive ? 'bg-accent/20 text-accent-soft' : 'text-slate-400 hover:bg-base-800'}`
+                }
+              >
+                <GitBranch className="w-4 h-4" />
+                Dépendances
               </NavLink>
             </>
           )}
