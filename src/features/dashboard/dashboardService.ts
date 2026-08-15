@@ -6,3 +6,14 @@ export async function getDashboardStats() {
   if (error) throw error
   return data as ProjectDashboardStats
 }
+
+export async function getOverdueTasksCount() {
+  const today = new Date().toISOString().slice(0, 10)
+  const { count, error } = await supabase
+    .from('group_tasks')
+    .select('id', { count: 'exact', head: true })
+    .lt('due_date', today)
+    .not('status', 'in', '(DONE,VALIDATED)')
+  if (error) throw error
+  return count ?? 0
+}

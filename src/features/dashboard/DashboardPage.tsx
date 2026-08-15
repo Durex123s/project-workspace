@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, Users, ListChecks, FlaskConical, FileText, ClipboardCheck, LayoutGrid } from 'lucide-react'
+import { Loader2, Users, ListChecks, FlaskConical, FileText, ClipboardCheck, LayoutGrid, AlertCircle } from 'lucide-react'
 import type { ProjectDashboardStats } from '@/types'
 import { useGroups } from '@/features/groups/useGroups'
-import { getDashboardStats } from './dashboardService'
+import { getDashboardStats, getOverdueTasksCount } from './dashboardService'
 import { ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
 
 // Dashboard 100% dynamique : chaque chiffre vient d'une requête
 // SQL (vue project_dashboard_stats). Aucun total n'est écrit en dur.
 export default function DashboardPage() {
   const [stats, setStats] = useState<ProjectDashboardStats | null>(null)
+  const [overdue, setOverdue] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { groups, loading: groupsLoading } = useGroups('ACTIVE')
@@ -17,8 +18,11 @@ export default function DashboardPage() {
   function loadStats() {
     setLoading(true)
     setError(null)
-    getDashboardStats()
-      .then(setStats)
+    Promise.all([getDashboardStats(), getOverdueTasksCount()])
+      .then(([s, o]) => {
+        setStats(s)
+        setOverdue(o)
+      })
       .catch((e) => setError(extractErrorMessage(e)))
       .finally(() => setLoading(false))
   }
@@ -31,7 +35,8 @@ export default function DashboardPage() {
     { icon: ListChecks, label: 'Tâches', value: `${stats.completed_tasks}/${stats.total_tasks}`, sub: `${stats.in_progress_tasks} en cours` },
     { icon: FlaskConical, label: 'Tests réalisés', value: stats.total_tests },
     { icon: FileText, label: 'Documents', value: stats.total_documents },
-    { icon: ClipboardCheck, label: 'Validations en attente', value: stats.pending_validations }
+    { icon: ClipboardCheck, label: 'Validations en attente', value: stats.pending_validations },
+    { icon: AlertCircle, label: 'Tâches en retard', value: overdue ?? 0 }
   ] : []
 
   return (
