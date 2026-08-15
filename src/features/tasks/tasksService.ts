@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { GroupTask, TaskStatus } from '@/types'
+import { createNotification } from '@/features/notifications/notificationsService'
 
 export async function listTasksForGroup(groupId: string) {
   const { data, error } = await supabase
@@ -34,6 +35,19 @@ export async function createTask(input: CreateTaskInput, createdBy: string) {
     p_entity_id: data.id,
     p_metadata: { title: input.title }
   })
+
+  if (input.assignee_id && input.assignee_id !== createdBy) {
+    await createNotification({
+      recipient_id: input.assignee_id,
+      type: 'task_assigned',
+      title: 'Nouvelle tâche assignée',
+      body: input.title,
+      group_id: input.group_id,
+      entity_type: 'group_tasks',
+      entity_id: data.id
+    })
+  }
+
   return data as GroupTask
 }
 

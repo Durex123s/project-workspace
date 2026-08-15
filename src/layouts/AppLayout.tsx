@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
+import NotificationBell from '@/features/notifications/NotificationBell'
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
@@ -26,8 +27,9 @@ export default function AppLayout() {
     <div className="min-h-screen sm:flex">
       {/* Sidebar desktop */}
       <aside className="hidden sm:flex sm:w-60 sm:flex-col border-r border-base-700 bg-base-900 p-4">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h1 className="font-bold text-lg">Project Workspace</h1>
+          <NotificationBell />
         </div>
         <nav className="space-y-1 flex-1">
           {NAV_ITEMS.map((item) => (
@@ -71,6 +73,12 @@ export default function AppLayout() {
           </div>
         )}
       </aside>
+
+      {/* Barre supérieure mobile */}
+      <header className="sm:hidden sticky top-0 z-20 bg-base-900 border-b border-base-700 px-4 py-2.5 flex items-center justify-between">
+        <span className="font-bold text-sm">Project Workspace</span>
+        <NotificationBell />
+      </header>
 
       {/* Contenu */}
       <main className="flex-1 min-w-0">

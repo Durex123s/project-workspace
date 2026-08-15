@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { ValidationRow, ValidationStatus } from '@/types'
+import { notifyStaff, createNotification } from '@/features/notifications/notificationsService'
 
 export async function listValidationsForGroup(groupId: string) {
   const { data, error } = await supabase
@@ -41,6 +42,20 @@ export async function submitForValidation(groupId: string, submittedBy: string, 
     p_entity_id: data.id,
     p_metadata: {}
   })
+
+  const { data: groupRow } = await supabase.from('groups').select('name, code').eq('id', groupId).single()
+  await notifyStaff(
+    {
+      type: 'validation_submitted',
+      title: 'Validation demandée',
+      body: groupRow ? `${groupRow.code ? `#${groupRow.code} — ` : ''}${groupRow.name}` : undefined,
+      group_id: groupId,
+      entity_type: 'validations',
+      entity_id: data.id
+    },
+    submittedBy
+  )
+
   return data as ValidationRow
 }
 
@@ -70,5 +85,23 @@ export async function reviewValidation(
     p_entity_id: id,
     p_metadata: { status }
   })
+
+  const STATUS_LABEL: Record<string, string> = {
+    VALIDATED: 'Validation acceptée',
+    REJECTED: 'Validation refusée',
+    CORRECTION_REQUESTED: 'Correction demandée'
+  }
+  if (data.submitted_by && data.submitted_by !== reviewedBy) {
+    await createNotification({
+      recipient_id: data.submitted_by,
+      type: 'validation_reviewed',
+      title: STATUS_LABEL[status] ?? 'Validation mise à jour',
+      body: comment || undefined,
+      group_id: groupId,
+      entity_type: 'validations',
+      entity_id: id
+    })
+  }
+
   return data as ValidationRow
 }
