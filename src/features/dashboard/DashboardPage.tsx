@@ -5,6 +5,7 @@ import type { ProjectDashboardStats } from '@/types'
 import { useGroups } from '@/features/groups/useGroups'
 import { getDashboardStats, getOverdueTasksCount } from './dashboardService'
 import { ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
+import GroupProgressChart from './GroupProgressChart'
 
 // Dashboard 100% dynamique : chaque chiffre vient d'une requête
 // SQL (vue project_dashboard_stats). Aucun total n'est écrit en dur.
@@ -80,6 +81,13 @@ export default function DashboardPage() {
           <Link to="/admin/groups" className="text-xs text-accent-soft">Gérer</Link>
         </div>
         {groupsLoading && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
+
+        {!groupsLoading && groups.length > 0 && (
+          <div className="mb-3">
+            <GroupProgressChart groups={groups} />
+          </div>
+        )}
+
         <div className="space-y-2">
           {groups.map((g) => (
             <Link key={g.group_id} to={`/groups/${g.group_id}`} className="card flex items-center justify-between block">
