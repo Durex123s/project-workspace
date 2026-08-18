@@ -166,3 +166,43 @@ export async function syncQueue(groupId: string): Promise<number> {
 export function hasPendingMessages(groupId: string): boolean {
   return readQueue(groupId).length > 0
 }
+
+// ------------------------------------------------------------
+// Realtime — écoute les nouveaux messages du groupe en direct.
+// Complète (ne remplace pas) le mécanisme hors-ligne : un message
+// reçu ici est aussi ajouté au cache local pour rester visible
+// hors-ligne ensuite. Le filtrage RLS s'applique déjà côté serveur
+// (un membre ne reçoit que les messages de ses propres groupes).
+// ------------------------------------------------------------
+export function subscribeToGroupMessages(groupId: string, onInsert: (message: GroupMessage) => void) {
+  const channel = supabase
+    .channel(`group_messages:${groupId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'group_messages', filter: `group_id=eq.${groupId}` },
+      (payload) => {
+        const message = payload.new as GroupMessage
+        mergeIncomingMessage(groupId, message)
+        onInsert(message)
+      }
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
+
+function mergeIncomingMessage(groupId: string, message: GroupMessage) {
+  const cache = readCache(groupId)
+  const idx = cache.findIndex((m) => m.client_id && m.client_id === message.client_id)
+  const next = idx >= 0 ? [...cache.slice(0, idx), message, ...cache.slice(idx + 1)] : [...cache, message]
+  writeCache(groupId, next)
+
+  // Si ce message vient de notre propre file d'attente locale (déjà synchronisé
+  // ailleurs, ex. autre onglet), on le retire pour éviter un double envoi futur.
+  const queue = readQueue(groupId)
+  if (message.client_id && queue.some((q) => q.client_id === message.client_id)) {
+    writeQueue(groupId, queue.filter((q) => q.client_id !== message.client_id))
+  }
+}

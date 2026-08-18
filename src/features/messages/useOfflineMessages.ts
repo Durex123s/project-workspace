@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { loadMessages, sendMessage, syncQueue, isOnline, hasPendingMessages } from './messagesService'
+import { loadMessages, sendMessage, syncQueue, isOnline, hasPendingMessages, subscribeToGroupMessages } from './messagesService'
 import type { GroupMessage } from '@/types'
 
 export function useOfflineMessages(groupId: string, authorId: string | undefined) {
@@ -47,6 +47,26 @@ export function useOfflineMessages(groupId: string, authorId: string | undefined
     },
     [groupId, authorId]
   )
+
+  // Souscription Realtime : les messages des autres membres du groupe
+  // apparaissent en direct, sans attendre un rechargement manuel.
+  useEffect(() => {
+    const unsubscribe = subscribeToGroupMessages(groupId, (incoming) => {
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m.client_id && m.client_id === incoming.client_id)
+        if (idx >= 0) {
+          // Remplace la version optimiste locale par la version confirmée du serveur.
+          const next = [...prev]
+          next[idx] = incoming
+          return next
+        }
+        if (prev.some((m) => m.id === incoming.id)) return prev
+        return [...prev, incoming]
+      })
+      setPending(hasPendingMessages(groupId))
+    })
+    return unsubscribe
+  }, [groupId])
 
   return { messages, loading, online, pending, send, reload }
 }
