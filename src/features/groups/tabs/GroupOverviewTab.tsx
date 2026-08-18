@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FileText, FlaskConical, ClipboardCheck, MessageSquare, ChevronRight } from 'lucide-react'
+import { FileText, FlaskConical, Ruler, ClipboardCheck, MessageSquare, ChevronRight } from 'lucide-react'
 import type { Group, GroupProgress } from '@/types'
 import { getGroupProgress, getGroupOverviewCounts, type GroupOverviewCounts } from '../groupsService'
 import { LoadingState, ErrorState, extractErrorMessage } from '@/components/StateViews'
@@ -32,6 +32,7 @@ export default function GroupOverviewTab({ group }: { group: Group }) {
   const shortcuts = [
     { to: `/groups/${groupId}/documents`, icon: FileText, label: 'Documents', value: counts ? `${counts.documents}` : '' },
     { to: `/groups/${groupId}/tests`, icon: FlaskConical, label: 'Tests', value: counts ? `${counts.tests}` : '' },
+    { to: `/groups/${groupId}/measurements`, icon: Ruler, label: 'Mesures', value: counts ? `${counts.measurements}` : '' },
     { to: `/groups/${groupId}/validation`, icon: ClipboardCheck, label: 'Validation', value: counts?.pendingValidation ? 'En attente' : '' },
     { to: `/groups/${groupId}/discussion`, icon: MessageSquare, label: 'Discussion', value: '' }
   ]

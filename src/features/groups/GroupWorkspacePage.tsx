@@ -8,6 +8,7 @@ import GroupMembersTab from './tabs/GroupMembersTab'
 import GroupDocumentsTab from './tabs/GroupDocumentsTab'
 import GroupDiscussionTab from './tabs/GroupDiscussionTab'
 import GroupTestsTab from './tabs/GroupTestsTab'
+import GroupMeasurementsTab from './tabs/GroupMeasurementsTab'
 import GroupValidationTab from './tabs/GroupValidationTab'
 import GroupTasksTab from '@/features/tasks/GroupTasksTab'
 
@@ -52,6 +53,7 @@ export default function GroupWorkspacePage() {
     { to: 'members', label: 'Membres' },
     { to: 'documents', label: 'Documents' },
     { to: 'tests', label: 'Tests' },
+    { to: 'measurements', label: 'Mesures' },
     { to: 'validation', label: 'Validation' },
     { to: 'discussion', label: 'Discussion' }
   ]
@@ -88,6 +90,7 @@ export default function GroupWorkspacePage() {
         <Route path="members" element={<GroupMembersTab groupId={group.id} />} />
         <Route path="documents" element={<GroupDocumentsTab groupId={group.id} />} />
         <Route path="tests" element={<GroupTestsTab groupId={group.id} />} />
+        <Route path="measurements" element={<GroupMeasurementsTab groupId={group.id} />} />
         <Route path="validation" element={<GroupValidationTab groupId={group.id} />} />
         <Route path="discussion" element={<GroupDiscussionTab groupId={group.id} />} />
       </Routes>

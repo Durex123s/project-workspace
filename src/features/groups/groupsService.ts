@@ -140,21 +140,25 @@ export async function getGroupProgress(groupId: string) {
 export interface GroupOverviewCounts {
   documents: number
   tests: number
+  measurements: number
   pendingValidation: boolean
 }
 
 export async function getGroupOverviewCounts(groupId: string): Promise<GroupOverviewCounts> {
-  const [docs, tests, validations] = await Promise.all([
+  const [docs, tests, measurements, validations] = await Promise.all([
     supabase.from('documents').select('id', { count: 'exact', head: true }).eq('group_id', groupId),
     supabase.from('tests').select('id', { count: 'exact', head: true }).eq('group_id', groupId),
+    supabase.from('measurements').select('id', { count: 'exact', head: true }).eq('group_id', groupId),
     supabase.from('validations').select('status').eq('group_id', groupId).in('status', ['SUBMITTED', 'UNDER_REVIEW'])
   ])
   if (docs.error) throw docs.error
   if (tests.error) throw tests.error
+  if (measurements.error) throw measurements.error
   if (validations.error) throw validations.error
   return {
     documents: docs.count ?? 0,
     tests: tests.count ?? 0,
+    measurements: measurements.count ?? 0,
     pendingValidation: (validations.data?.length ?? 0) > 0
   }
 }
