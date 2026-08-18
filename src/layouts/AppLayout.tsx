@@ -1,5 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck, GitBranch } from 'lucide-react'
+import { NavLink, Outlet, Link } from 'react-router-dom'
+import { LayoutDashboard, LayoutGrid, FlaskConical, FileText, Settings, User, Calculator, ClipboardCheck, GitBranch, Search } from 'lucide-react'
 import { useAuth } from '@/features/auth/AuthContext'
 import NotificationBell from '@/features/notifications/NotificationBell'
 
@@ -29,7 +29,12 @@ export default function AppLayout() {
       <aside className="hidden sm:flex sm:w-60 sm:flex-col border-r border-base-700 bg-base-900 p-4">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="font-bold text-lg">Project Workspace</h1>
-          <NotificationBell />
+          <div className="flex items-center gap-1">
+            <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher">
+              <Search className="w-5 h-5" />
+            </Link>
+            <NotificationBell />
+          </div>
         </div>
         <nav className="space-y-1 flex-1">
           {NAV_ITEMS.map((item) => (
@@ -86,7 +91,12 @@ export default function AppLayout() {
       {/* Barre supérieure mobile */}
       <header className="sm:hidden sticky top-0 z-20 bg-base-900 border-b border-base-700 px-4 py-2.5 flex items-center justify-between">
         <span className="font-bold text-sm">Project Workspace</span>
-        <NotificationBell />
+        <div className="flex items-center gap-1">
+          <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher">
+            <Search className="w-5 h-5" />
+          </Link>
+          <NotificationBell />
+        </div>
       </header>
 
       {/* Contenu */}

@@ -14,6 +14,7 @@ import AdminGroupsPage from '@/features/admin/AdminGroupsPage'
 import TransmissionCalculatorPage from '@/features/calculators/TransmissionCalculatorPage'
 import AdminValidationsPage from '@/features/validations/AdminValidationsPage'
 import AdminDependenciesPage from '@/features/dependencies/AdminDependenciesPage'
+import GlobalSearchPage from '@/features/search/GlobalSearchPage'
 
 // Remarque architecture : aucune route n'est dupliquée par groupe.
 // /groups/:groupId dessert dynamiquement tous les groupes existants.
@@ -29,6 +30,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/search" element={<GlobalSearchPage />} />
               <Route path="/groups" element={<GroupsListPage />} />
               <Route path="/groups/:groupId/*" element={<GroupWorkspacePage />} />
               <Route path="/tests" element={<TestsPage />} />
