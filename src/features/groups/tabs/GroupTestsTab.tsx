@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Plus, Trash2, Loader2, FlaskConical } from 'lucide-react'
+import { Plus, Trash2, Loader2, FlaskConical, Download } from 'lucide-react'
 import { listTestsForGroup, createTest, deleteTest } from '@/features/tests/testsService'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { TestRow } from '@/types'
 import { LoadingState, ErrorState, EmptyState, extractErrorMessage } from '@/components/StateViews'
+import { exportToCsv } from '@/lib/csvExport'
 
 const EMPTY_FORM = { name: '', objective: '', theoretical_value: '', measured_value: '', unit: '', comment: '' }
 
@@ -65,13 +66,37 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
     }
   }
 
+  function handleExport() {
+    exportToCsv(
+      `tests-groupe-${groupId}.csv`,
+      tests.map((t) => ({
+        nom: t.name,
+        objectif: t.objective ?? '',
+        valeur_theorique: t.theoretical_value,
+        valeur_mesuree: t.measured_value,
+        unite: t.unit ?? '',
+        erreur_absolue: t.absolute_error,
+        erreur_relative_pct: t.relative_error_pct,
+        resultat: t.result ?? '',
+        date: new Date(t.performed_at).toLocaleString('fr-FR')
+      }))
+    )
+  }
+
   return (
     <div className="p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-medium text-sm text-slate-300">Tests & mesures ({tests.length})</h3>
-        <button onClick={() => setShowForm((s) => !s)} className="btn-secondary text-sm flex items-center gap-1.5">
-          <Plus className="w-4 h-4" /> Nouveau test
-        </button>
+        <div className="flex items-center gap-1.5">
+          {tests.length > 0 && (
+            <button onClick={handleExport} className="btn-secondary text-sm flex items-center gap-1.5" title="Exporter en CSV">
+              <Download className="w-4 h-4" />
+            </button>
+          )}
+          <button onClick={() => setShowForm((s) => !s)} className="btn-secondary text-sm flex items-center gap-1.5">
+            <Plus className="w-4 h-4" /> Nouveau test
+          </button>
+        </div>
       </div>
 
       {showForm && (

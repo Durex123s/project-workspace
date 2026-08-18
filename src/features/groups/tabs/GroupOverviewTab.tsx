@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FileText, FlaskConical, Ruler, ClipboardCheck, MessageSquare, ChevronRight } from 'lucide-react'
+import { FileText, FlaskConical, Ruler, ClipboardCheck, MessageSquare, ChevronRight, Activity } from 'lucide-react'
 import type { Group, GroupProgress } from '@/types'
 import { getGroupProgress, getGroupOverviewCounts, type GroupOverviewCounts } from '../groupsService'
+import { listActivityForGroup, describeAction, timeAgo, type ActivityLogEntry } from '@/features/activity/activityLogsService'
 import { LoadingState, ErrorState, extractErrorMessage } from '@/components/StateViews'
 
 export default function GroupOverviewTab({ group }: { group: Group }) {
   const { groupId } = useParams<{ groupId: string }>()
   const [progress, setProgress] = useState<GroupProgress | null>(null)
   const [counts, setCounts] = useState<GroupOverviewCounts | null>(null)
+  const [activity, setActivity] = useState<ActivityLogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   function load() {
     setLoading(true)
     setError(null)
-    Promise.all([getGroupProgress(group.id), getGroupOverviewCounts(group.id)])
-      .then(([p, c]) => {
+    Promise.all([getGroupProgress(group.id), getGroupOverviewCounts(group.id), listActivityForGroup(group.id)])
+      .then(([p, c, a]) => {
         setProgress(p)
         setCounts(c)
+        setActivity(a)
       })
       .catch((e) => setError(extractErrorMessage(e)))
       .finally(() => setLoading(false))
@@ -75,6 +78,22 @@ export default function GroupOverviewTab({ group }: { group: Group }) {
             <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
           </Link>
         ))}
+      </div>
+
+      <div className="card">
+        <h3 className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-2">
+          <Activity className="w-4 h-4 text-accent-soft" /> Activité récente
+        </h3>
+        {activity.length === 0 && <p className="text-xs text-slate-500 py-2">Aucune activité pour l'instant.</p>}
+        <div className="space-y-2.5">
+          {activity.map((a) => (
+            <div key={a.id} className="text-xs">
+              <span className="text-slate-300 font-medium">{a.actor?.full_name ?? 'Quelqu\'un'}</span>
+              <span className="text-slate-500"> {describeAction(a)}</span>
+              <span className="text-slate-600"> · {timeAgo(a.created_at)}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
