@@ -53,7 +53,7 @@ export default function AddMemberModal({ groupId, existingMembers, onClose, onAd
       <div className="bg-base-800 border border-base-600 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-base-700 shrink-0">
           <h2 className="font-semibold">Ajouter un membre</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-white" aria-label="Fermer">
             <X className="w-5 h-5" />
           </button>
         </div>

@@ -51,7 +51,7 @@ export default function GroupMembersTab({ groupId }: { groupId: string }) {
             <p className="font-medium text-sm">{m.profile?.full_name ?? 'Utilisateur'}</p>
             <p className="text-xs text-slate-500">{m.role_in_group}</p>
           </div>
-          <button onClick={() => handleRemove(m.id)} className="p-2 text-slate-400 hover:text-status-blocked">
+          <button onClick={() => handleRemove(m.id)} className="p-2 text-slate-400 hover:text-status-blocked" aria-label="Retirer ce membre">
             <UserMinus className="w-4 h-4" />
           </button>
         </div>

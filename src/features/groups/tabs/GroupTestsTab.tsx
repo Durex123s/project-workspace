@@ -89,7 +89,7 @@ export default function GroupTestsTab({ groupId }: { groupId: string }) {
         <h3 className="font-medium text-sm text-slate-300">Tests & mesures ({tests.length})</h3>
         <div className="flex items-center gap-1.5">
           {tests.length > 0 && (
-            <button onClick={handleExport} className="btn-secondary text-sm flex items-center gap-1.5" title="Exporter en CSV">
+            <button onClick={handleExport} className="btn-secondary text-sm flex items-center gap-1.5" title="Exporter en CSV" aria-label="Exporter en CSV">
               <Download className="w-4 h-4" />
             </button>
           )}

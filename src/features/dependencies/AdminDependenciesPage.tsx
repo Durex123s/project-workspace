@@ -119,7 +119,7 @@ export default function AdminDependenciesPage() {
                   <span className="font-medium truncate">{d.to_group?.code ? `#${d.to_group.code}` : d.to_group?.name}</span>
                 </div>
                 {isAdmin && (
-                  <button onClick={() => handleDelete(d.id)} className="p-1 text-slate-500 hover:text-status-blocked shrink-0">
+                  <button onClick={() => handleDelete(d.id)} className="p-1 text-slate-500 hover:text-status-blocked shrink-0" aria-label="Supprimer la dépendance">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -150,7 +150,7 @@ export default function AdminDependenciesPage() {
           <div className="bg-base-800 border border-base-600 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm">
             <div className="flex items-center justify-between p-4 border-b border-base-700">
               <h2 className="font-semibold">Nouvelle dépendance</h2>
-              <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white" aria-label="Fermer">
                 <X className="w-5 h-5" />
               </button>
             </div>

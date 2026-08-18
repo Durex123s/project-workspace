@@ -114,7 +114,7 @@ export default function GroupMeasurementsTab({ groupId }: { groupId: string }) {
                   <Ruler className="w-4 h-4 text-accent-soft shrink-0" />
                   <p className="text-sm font-medium truncate">{m.label}</p>
                 </div>
-                <button onClick={() => handleDelete(m.id)} className="p-1 text-slate-500 hover:text-status-blocked shrink-0">
+                <button onClick={() => handleDelete(m.id)} className="p-1 text-slate-500 hover:text-status-blocked shrink-0" aria-label="Supprimer la mesure">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>

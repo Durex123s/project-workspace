@@ -66,7 +66,7 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={handleOpen} className="relative p-2 text-slate-400 hover:text-white">
+      <button onClick={handleOpen} className="relative p-2 text-slate-400 hover:text-white" aria-label="Notifications">
         <Bell className="w-5 h-5" />
         {unread > 0 && (
           <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-status-blocked text-white text-[10px] flex items-center justify-center">
@@ -99,7 +99,7 @@ export default function NotificationBell() {
                   <p className="text-[11px] text-slate-600 mt-1">{timeAgo(n.created_at)}</p>
                 </div>
                 {!n.is_read && (
-                  <button onClick={() => handleMarkOne(n.id)} className="p-1 text-slate-500 hover:text-accent-soft shrink-0" title="Marquer comme lu">
+                  <button onClick={() => handleMarkOne(n.id)} className="p-1 text-slate-500 hover:text-accent-soft shrink-0" title="Marquer comme lu" aria-label="Marquer comme lu">
                     <Check className="w-4 h-4" />
                   </button>
                 )}

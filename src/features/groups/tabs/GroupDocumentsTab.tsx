@@ -121,10 +121,10 @@ export default function GroupDocumentsTab({ groupId }: { groupId: string }) {
                 <p className="text-sm font-medium truncate">{doc.file_name}</p>
                 <p className="text-xs text-slate-500">{CATEGORY_LABEL[doc.category]}</p>
               </div>
-              <button onClick={() => handleOpen(doc)} className="p-2 text-slate-400 hover:text-accent-soft" title="Ouvrir / télécharger">
+              <button onClick={() => handleOpen(doc)} className="p-2 text-slate-400 hover:text-accent-soft" title="Ouvrir / télécharger" aria-label="Ouvrir ou télécharger le document">
                 <Download className="w-4 h-4" />
               </button>
-              <button onClick={() => handleDelete(doc)} className="p-2 text-slate-400 hover:text-status-blocked" title="Supprimer">
+              <button onClick={() => handleDelete(doc)} className="p-2 text-slate-400 hover:text-status-blocked" title="Supprimer" aria-label="Supprimer le document">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

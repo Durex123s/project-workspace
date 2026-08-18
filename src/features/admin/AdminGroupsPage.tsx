@@ -111,7 +111,7 @@ export default function AdminGroupsPage() {
               </div>
             </Link>
             <div className="flex items-center gap-1">
-              <Link to={`/groups/${g.group_id}`} className="p-2 text-slate-400 hover:text-white" title="Membres">
+              <Link to={`/groups/${g.group_id}`} className="p-2 text-slate-400 hover:text-white" title="Membres" aria-label="Voir les membres">
                 <Users className="w-4 h-4" />
               </Link>
               <button
@@ -119,19 +119,20 @@ export default function AdminGroupsPage() {
                 disabled={loadingEdit}
                 className="p-2 text-slate-400 hover:text-white disabled:opacity-50"
                 title="Modifier"
+                aria-label="Modifier le groupe"
               >
                 <Pencil className="w-4 h-4" />
               </button>
               {g.status === 'ACTIVE' ? (
-                <button disabled={busyId === g.group_id} onClick={() => handleArchive(g.group_id)} className="p-2 text-slate-400 hover:text-status-pending" title="Archiver">
+                <button disabled={busyId === g.group_id} onClick={() => handleArchive(g.group_id)} className="p-2 text-slate-400 hover:text-status-pending" title="Archiver" aria-label="Archiver le groupe">
                   <Archive className="w-4 h-4" />
                 </button>
               ) : (
-                <button disabled={busyId === g.group_id} onClick={() => handleRestore(g.group_id)} className="p-2 text-slate-400 hover:text-status-ready" title="Restaurer">
+                <button disabled={busyId === g.group_id} onClick={() => handleRestore(g.group_id)} className="p-2 text-slate-400 hover:text-status-ready" title="Restaurer" aria-label="Restaurer le groupe">
                   <ArchiveRestore className="w-4 h-4" />
                 </button>
               )}
-              <button disabled={busyId === g.group_id} onClick={() => handleDelete(g.group_id)} className="p-2 text-slate-400 hover:text-status-blocked" title="Supprimer">
+              <button disabled={busyId === g.group_id} onClick={() => handleDelete(g.group_id)} className="p-2 text-slate-400 hover:text-status-blocked" title="Supprimer" aria-label="Supprimer le groupe">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>

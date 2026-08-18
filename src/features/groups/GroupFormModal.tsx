@@ -60,7 +60,7 @@ export default function GroupFormModal({ group, onClose, onSaved }: Props) {
       <div className="bg-base-800 border border-base-600 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-base-700">
           <h2 className="font-semibold">{isEdit ? 'Modifier le groupe' : 'Créer un groupe'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-slate-400 hover:text-white" aria-label="Fermer">
             <X className="w-5 h-5" />
           </button>
         </div>

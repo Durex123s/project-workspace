@@ -30,7 +30,7 @@ export default function AppLayout() {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="font-bold text-lg">Project Workspace</h1>
           <div className="flex items-center gap-1">
-            <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher">
+            <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher" aria-label="Rechercher">
               <Search className="w-5 h-5" />
             </Link>
             <NotificationBell />
@@ -92,7 +92,7 @@ export default function AppLayout() {
       <header className="sm:hidden sticky top-0 z-20 bg-base-900 border-b border-base-700 px-4 py-2.5 flex items-center justify-between">
         <span className="font-bold text-sm">Project Workspace</span>
         <div className="flex items-center gap-1">
-          <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher">
+          <Link to="/search" className="p-2 text-slate-400 hover:text-white" title="Rechercher" aria-label="Rechercher">
             <Search className="w-5 h-5" />
           </Link>
           <NotificationBell />
